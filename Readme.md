@@ -9,18 +9,8 @@ API_KEY=<sendinblueAPIKEY>
 
 ```
 
-- Install all packages using
-`
-  npm install
-`
+- Install all packages using `npm install`
 
-- Buid project it will create a buid directory
-`
-npm run tsc  
-`
+- Buid project it will create a buid directory `npm run tsc`
 
-- To Start
-
-`
-npm start
-`
+- To Start `npm start`

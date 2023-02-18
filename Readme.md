@@ -3,10 +3,9 @@ To Run first
 - create .env file in root directory
 
 ```
-emailUser=<authEmail>
-emailPassword=<authPassword>
 toEmail=<toEmail>
 mongoUrl=<mongoUrl>
+API_KEY=<sendinblueAPIKEY>
 
 ```
 

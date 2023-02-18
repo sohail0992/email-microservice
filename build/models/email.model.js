@@ -50,7 +50,7 @@ var EmailSchema = new mongoose_1.Schema({
         required: false
     },
     response: {
-        type: String,
+        type: Object,
         required: false
     }
 });

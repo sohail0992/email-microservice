@@ -4,55 +4,73 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // lib/app.ts
-require('dotenv').config();
+require("dotenv").config();
 var express = require("express");
 var bodyParser = require("body-parser");
 var mongoose_1 = __importDefault(require("mongoose"));
-var nodemailer_1 = __importDefault(require("nodemailer"));
-var nodemailer_smtp_transport_1 = __importDefault(require("nodemailer-smtp-transport"));
 var email_model_1 = __importDefault(require("../models/email.model"));
-mongoose_1.default.connect(process.env.mongoUrl || 'mongodb://localhost:27017/email', {
+var SibApiV3Sdk = require("sib-api-v3-sdk");
+var defaultClient = SibApiV3Sdk.ApiClient.instance;
+// Configure API key authorization: api-key
+var apiKey = defaultClient.authentications["api-key"];
+apiKey.apiKey = process.env.API_KEY;
+// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+//apiKey.apiKeyPrefix = 'Token';
+// Configure API key authorization: partner-key
+var partnerKey = defaultClient.authentications["partner-key"];
+partnerKey.apiKey = process.env.API_KEY;
+// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+//partnerKey.apiKeyPrefix = 'Token';
+var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+mongoose_1.default.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useCreateIndex: true,
 });
-var transporter = nodemailer_1.default.createTransport(nodemailer_smtp_transport_1.default({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.emailUser,
-        pass: process.env.emailPassword,
-    }
-}));
 // Create a new express application instance
 var app = express();
 app.use(bodyParser.json());
-app.get('/', function (req, res) {
-    res.send('Hello World!');
+app.get("/", function (req, res) {
+    res.send("Hello World!");
 });
-app.post('/send-email', function (req, res) {
-    var mailOptions = {
-        from: req.body.from,
-        to: process.env.toEmail,
-        subject: req.body.subject || 'No Subject',
-        text: req.body.text || '',
-    };
-    var email = new email_model_1.default(mailOptions);
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-            email.error = JSON.stringify(error);
-            res.status(500).send({ msg: 'Email Sending Failed' });
-        }
-        else {
-            console.log('Email sent: ' + info.response);
-            res.status(200).send({ msg: info.response });
-        }
-        email.response = JSON.stringify(info);
-        email.save();
-    });
+app.post("/send-email", function (req, res) {
+    var _a;
+    try {
+        var mailOptions = {
+            from: req.body.from,
+            to: process.env.toEmail,
+            subject: req.body.subject || "No Subject",
+            text: req.body.text || "",
+        };
+        var email_1 = new email_model_1.default(mailOptions);
+        var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        sendSmtpEmail.subject = mailOptions.subject || "No Subject",
+            sendSmtpEmail.textContent = mailOptions.text || "No text",
+            sendSmtpEmail.sender = {
+                name: (_a = mailOptions.from.split("")) === null || _a === void 0 ? void 0 : _a[0],
+                email: mailOptions.from,
+            };
+        sendSmtpEmail.to = [{ email: process.env.toEmail, name: "M Sohail" }];
+        sendSmtpEmail.params = {
+            subject: mailOptions.subject || "No Subject",
+        };
+        apiInstance.sendTransacEmail(sendSmtpEmail).then(function (data) {
+            console.info("API called successfully. Returned data: " + JSON.stringify(data));
+            res.status(200).send({ 'success': true });
+            email_1.response = data;
+            email_1.save();
+        }, function (error) {
+            console.error(error, 'error while sending email');
+            res.status(500).send({ 'success': false, error: error });
+            email_1.response = error;
+            email_1.save();
+        });
+    }
+    catch (err) {
+        console.error(err, 'error while sending email');
+        res.status(500).send({ 'success': false, error: err });
+    }
 });
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000!');
+app.listen(process.env.PORT || 3000, function () {
+    console.log("Example app listening on port 3000!");
 });

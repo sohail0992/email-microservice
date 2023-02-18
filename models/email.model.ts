@@ -9,7 +9,7 @@ export interface IEmail extends Document {
   firstName: string;
   lastName: string;
   error: String;
-  response: string;
+  response: Object;
 }
 
 const EmailSchema: Schema = new Schema({
@@ -42,7 +42,7 @@ const EmailSchema: Schema = new Schema({
     required: false 
   },
   response:  { 
-    type: String, 
+    type: Object, 
     required: false 
   }
 });

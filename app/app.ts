@@ -1,58 +1,78 @@
 // lib/app.ts
-require('dotenv').config()
-import express = require('express');
-import bodyParser =  require('body-parser');
-import  mongoose  from 'mongoose';
-import nodemailer from 'nodemailer';
-import smtpTransport from 'nodemailer-smtp-transport';
-import Email, { IEmail } from '../models/email.model';
+require("dotenv").config();
+import express = require("express");
+import bodyParser = require("body-parser");
+import mongoose from "mongoose";
+import Email from "../models/email.model";
+const SibApiV3Sdk = require("sib-api-v3-sdk");
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+// Configure API key authorization: api-key
+const apiKey = defaultClient.authentications["api-key"];
+apiKey.apiKey = process.env.API_KEY;
+// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+//apiKey.apiKeyPrefix = 'Token';
 
-mongoose.connect(process.env.mongoUrl || 'mongodb://localhost:27017/email', {
+// Configure API key authorization: partner-key
+const partnerKey = defaultClient.authentications["partner-key"];
+partnerKey.apiKey = process.env.API_KEY;
+// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+//partnerKey.apiKeyPrefix = 'Token';
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
   useUnifiedTopology: true,
   useNewUrlParser: true,
   useCreateIndex: true,
 });
 
-var transporter = nodemailer.createTransport(smtpTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: { 
-    user: process.env.emailUser,
-    pass: process.env.emailPassword,
-  }
-}))
-
 // Create a new express application instance
 const app: express.Application = express();
 app.use(bodyParser.json());
 
-app.get('/', function (req, res) {
-  res.send('Hello World!');
+app.get("/", function (req, res) {
+  res.send("Hello World!");
 });
 
-app.post('/send-email', (req, res) => {
-  const mailOptions = {
-    from: req.body.from,
-    to: process.env.toEmail,
-    subject: req.body.subject || 'No Subject',
-    text: req.body.text || '',
-  };
-  let email = new Email(mailOptions);
-  transporter.sendMail(mailOptions, function(error: any, info: { response: string; }) {
-    if (error) {
-        console.log(error);
-        email.error = JSON.stringify(error)
-        res.status(500).send({msg: 'Email Sending Failed'});
-    } else {
-        console.log('Email sent: ' + info.response);
-        res.status(200).send({ msg: info.response });
-    }
-    email.response = JSON.stringify(info);
-    email.save();
-  });
+app.post("/send-email", (req, res) => {
+  try {
+    const mailOptions = {
+      from: req.body.from,
+      to: process.env.toEmail,
+      subject: req.body.subject || "No Subject",
+      text: req.body.text || "",
+    };
+    const email = new Email(mailOptions);
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    sendSmtpEmail.subject = mailOptions.subject || "No Subject",
+    sendSmtpEmail.textContent =  mailOptions.text || "No text",
+    sendSmtpEmail.sender = {
+      name: mailOptions.from.split("")?.[0],
+      email: mailOptions.from,
+    };
+    sendSmtpEmail.to = [{ email: process.env.toEmail, name: "M Sohail" }];
+    sendSmtpEmail.params = {
+      subject: mailOptions.subject || "No Subject",
+    };
+    apiInstance.sendTransacEmail(sendSmtpEmail).then(
+      function (data: any) {
+        console.info("API called successfully. Returned data: " + JSON.stringify(data));
+        res.status(200).send({ 'success': true });
+        email.response = data;
+        email.save();
+      },
+      function (error: any) {
+        console.error(error, 'error while sending email');
+        res.status(500).send({ 'success': false, error: error });
+        email.response = error;
+        email.save();
+      }
+    );
+  } catch (err) {
+    console.error(err, 'error while sending email');
+    res.status(500).send({ 'success': false, error: err });
+  }
 });
 
 app.listen(process.env.PORT || 3000, function () {
-  console.log('Example app listening on port 3000!');
+  console.log("Example app listening on port 3000!");
 });

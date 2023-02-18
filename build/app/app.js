@@ -11,7 +11,6 @@ var mongoose_1 = __importDefault(require("mongoose"));
 var email_model_1 = __importDefault(require("../models/email.model"));
 var SibApiV3Sdk = require("sib-api-v3-sdk");
 var defaultClient = SibApiV3Sdk.ApiClient.instance;
-console.log(process.env.API_KEY, "API_KEY");
 // Configure API key authorization: api-key
 var apiKey = defaultClient.authentications["api-key"];
 apiKey.apiKey = process.env.API_KEY;

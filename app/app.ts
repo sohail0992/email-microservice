@@ -3,6 +3,7 @@ require("dotenv").config();
 import express = require("express");
 import bodyParser = require("body-parser");
 import mongoose from "mongoose";
+import cors from 'cors';
 import Email from "../models/email.model";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
@@ -28,6 +29,7 @@ mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
 // Create a new express application instance
 const app: express.Application = express();
 app.use(bodyParser.json());
+app.use(cors())
 
 app.get("/", function (req, res) {
   res.send("Hello World!");

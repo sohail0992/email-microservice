@@ -29,8 +29,7 @@ mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
 // Create a new express application instance
 const app: express.Application = express();
 app.use(bodyParser.json());
-app.use(cors); /* NEW */
-app.use(express.json());
+app.use(cors())
 
 app.get("/", function (req, res) {
   res.send("Hello World!");

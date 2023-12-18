@@ -29,7 +29,13 @@ mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
 // Create a new express application instance
 const app: express.Application = express();
 app.use(bodyParser.json());
-app.use(cors())
+const corsOptions = {
+  origin: '*', // Replace with your specific front-end domain or '*' for all
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true, // Enable credentials if needed
+  optionsSuccessStatus: 204,
+};
+app.use(cors(corsOptions));
 
 app.get("/", function (req, res) {
   res.send("Hello World!");

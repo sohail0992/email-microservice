@@ -44,8 +44,8 @@ app.get("/", function (req, res) {
 app.post("/send-email", (req, res) => {
   try {
     const mailOptions = {
-      from: req.body.from,
-      to: process.env.toEmail,
+      from: req.body.from || process.env.fromEmail,
+      to: req.body.to || process.env.toEmail,
       subject: req.body.subject || "No Subject",
       text: req.body.text || "",
     };

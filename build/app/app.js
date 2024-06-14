@@ -54,7 +54,7 @@ app.post("/send-email", function (req, res) {
         sendSmtpEmail.subject = mailOptions.subject || "No Subject",
             sendSmtpEmail.textContent = mailOptions.text || "No text",
             sendSmtpEmail.sender = {
-                name: (_a = mailOptions.from.split("")) === null || _a === void 0 ? void 0 : _a[0],
+                name: (_a = mailOptions.from.split("9")) === null || _a === void 0 ? void 0 : _a[0],
                 email: mailOptions.from,
             };
         sendSmtpEmail.to = [{ email: process.env.toEmail, name: "M Sohail" }];

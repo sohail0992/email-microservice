@@ -36,11 +36,10 @@ app.get("/", function (req, res) {
     res.send("Hello World!");
 });
 app.post("/send-email", function (req, res) {
-    var _a;
     try {
         var mailOptions = {
-            from: req.body.from,
-            to: process.env.toEmail,
+            from: req.body.from || process.env.fromEmail,
+            to:  req.body.to || process.env.toEmail,
             subject: req.body.subject || "No Subject",
             text: req.body.text || "",
         };

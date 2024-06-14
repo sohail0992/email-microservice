@@ -20,11 +20,11 @@ partnerKey.apiKey = process.env.API_KEY;
 //partnerKey.apiKeyPrefix = 'Token';
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
-mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
-  useUnifiedTopology: true,
-  useNewUrlParser: true,
-  useCreateIndex: true,
-});
+// mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
+//   useUnifiedTopology: true,
+//   useNewUrlParser: true,
+//   useCreateIndex: true,
+// });
 
 // Create a new express application instance
 const app: express.Application = express();
@@ -58,6 +58,9 @@ app.post("/send-email", (req, res) => {
       email: mailOptions.from,
     };
     sendSmtpEmail.to = [{ email: process.env.toEmail, name: "M Sohail" }];
+    if (process.env.toEmail2) {
+      sendSmtpEmail.to.push({ email: process.env.toEmail2, name: process.env.toEmail2User});
+    }
     sendSmtpEmail.params = {
       subject: mailOptions.subject || "No Subject",
     };

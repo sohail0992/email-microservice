@@ -7,7 +7,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv").config();
 var express = require("express");
 var bodyParser = require("body-parser");
-var mongoose_1 = __importDefault(require("mongoose"));
 var cors_1 = __importDefault(require("cors"));
 var email_model_1 = __importDefault(require("../models/email.model"));
 var SibApiV3Sdk = require("sib-api-v3-sdk");
@@ -23,23 +22,30 @@ partnerKey.apiKey = process.env.API_KEY;
 // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
 //partnerKey.apiKeyPrefix = 'Token';
 var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-mongoose_1.default.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    useCreateIndex: true,
-});
+// mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
+//   useUnifiedTopology: true,
+//   useNewUrlParser: true,
+//   useCreateIndex: true,
+// });
 // Create a new express application instance
 var app = express();
 app.use(bodyParser.json());
-app.use(cors_1.default());
+var corsOptions = {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+};
+app.use(cors_1.default(corsOptions));
 app.get("/", function (req, res) {
     res.send("Hello World!");
 });
 app.post("/send-email", function (req, res) {
+    var _a;
     try {
         var mailOptions = {
             from: req.body.from || process.env.fromEmail,
-            to:  req.body.to || process.env.toEmail,
+            to: req.body.to || process.env.toEmail,
             subject: req.body.subject || "No Subject",
             text: req.body.text || "",
         };
@@ -53,7 +59,7 @@ app.post("/send-email", function (req, res) {
             };
         sendSmtpEmail.to = [{ email: process.env.toEmail, name: "M Sohail" }];
         if (process.env.toEmail2) {
-            sendSmtpEmail.to.push({ email: process.env.toEmail2, name:  process.env.toEmail2User || "User"})
+            sendSmtpEmail.to.push({ email: process.env.toEmail2, name: process.env.toEmail2User });
         }
         sendSmtpEmail.params = {
             subject: mailOptions.subject || "No Subject",

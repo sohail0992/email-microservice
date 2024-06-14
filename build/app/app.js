@@ -53,6 +53,9 @@ app.post("/send-email", function (req, res) {
                 email: mailOptions.from,
             };
         sendSmtpEmail.to = [{ email: process.env.toEmail, name: "M Sohail" }];
+        if (process.env.toEmail2) {
+            sendSmtpEmail.to.push({ email: process.env.toEmail2, name:  process.env.toEmail2User || "User"})
+        }
         sendSmtpEmail.params = {
             subject: mailOptions.subject || "No Subject",
         };

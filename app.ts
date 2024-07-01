@@ -2,9 +2,10 @@
 require("dotenv").config();
 import express = require("express");
 import bodyParser = require("body-parser");
+import serverless from "serverless-http";
 import mongoose from "mongoose";
 import cors from 'cors';
-import Email from "../models/email.model";
+import Email from "./models/email.model";
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 // Configure API key authorization: api-key
@@ -20,11 +21,11 @@ partnerKey.apiKey = process.env.API_KEY;
 //partnerKey.apiKeyPrefix = 'Token';
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
-// mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
-//   useUnifiedTopology: true,
-//   useNewUrlParser: true,
-//   useCreateIndex: true,
-// });
+mongoose.connect(process.env.mongoUrl || "mongodb://localhost:27017/email", {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useCreateIndex: true,
+});
 
 // Create a new express application instance
 const app: express.Application = express();
@@ -85,6 +86,11 @@ app.post("/send-email", (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 3000, function () {
-  console.log("Example app listening on port 3000!");
-});
+if (process.env.SERVERLESS === 'true') {
+  const lambdaHandler = serverless(app);
+  module.exports.handler = lambdaHandler;
+} else {
+  app.listen(process.env.PORT || 3000, function () {
+    console.log("Example app listening on port 3000!");
+  });
+}

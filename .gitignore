@@ -92,6 +92,7 @@ out
 dist
 dist/**/*
 build/**/*
+.DS_Store
 
 
 # Gatsby files

@@ -1,6 +1,6 @@
-// lib/app.ts
-require("dotenv").config();
 import express = require("express");
+import * as dotenv from 'dotenv';
+dotenv.config({ path: __dirname + '/.env' });
 import bodyParser = require("body-parser");
 import serverless from "serverless-http";
 import mongoose from "mongoose";
@@ -13,6 +13,7 @@ const apiKey = defaultClient.authentications["api-key"];
 apiKey.apiKey = process.env.API_KEY;
 // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
 //apiKey.apiKeyPrefix = 'Token';
+import { verifyToken } from './middleware/verify-token';
 
 // Configure API key authorization: partner-key
 const partnerKey = defaultClient.authentications["partner-key"];
@@ -37,6 +38,8 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
+
+app.use(verifyToken);
 
 app.get("/", function (req, res) {
   res.send("Hello World!");

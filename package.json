@@ -1,7 +1,7 @@
 {
   "name": "emailservice",
   "version": "1.0.0",
-  "main": "build/app/app.js",
+  "main": "build/app.js",
   "scripts": {
     "start": "tsc && node build/app.js",
     "build": "tsc -p .",
@@ -21,14 +21,16 @@
   "dependencies": {
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.8",
-    "@types/mongoose": "^5.7.36",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
+    "dotenv": "^16.0.1",
     "express": "^4.17.1",
     "mongoose": "^5.10.9",
     "serverless-http": "^3.2.0",
     "sib-api-v3-sdk": "^8.5.0",
     "typescript": "^4.0.3"
+  },
+  "devDependencies": {
+    "serverless-offline": "^13.6.0"
   }
 }
